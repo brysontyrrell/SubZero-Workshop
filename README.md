@@ -6,7 +6,7 @@ A serverless workshop for SubZero 2020.
 
 The workshop is split across 6 modules over the course of the day. Each module will include a brief lecture, guided hands on activity, and challenges. At the start of a module copy the contents of the directory into your working repository as directed by the workshop leads.
 
-Even if you complete the challenges it is recommended you copy the files for the next module and overwrite your changes.
+All challenges revolve around modifying CloudFormation templates and resources - you are not required to know or write Python as a part of this workshop. If you do complete the challenges it is recommended you copy the files for the next module and overwrite your changes.
 
 ### [Pipeline](1_Pipeline/README.md) (10:00 - 10:30 / 30 min)
 
