@@ -6,6 +6,9 @@ Parameters:
   CognitoPoolArn:
     Type: String
 
+  CognitoPoolId:
+    Type: String
+
 Resources:
 
   CognitoPoolArnParameter:
@@ -14,3 +17,10 @@ Resources:
       Name: /workshop/cognito_pool_arn
       Type: String
       Value: !Ref CognitoPoolArn
+
+  CognitoPoolIdParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /workshop/cognito_pool_id
+      Type: String
+      Value: !Ref CognitoPoolId
