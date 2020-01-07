@@ -1,0 +1,16 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: SSM Parameters for Workshop Templates
+
+Parameters:
+
+  CognitoPoolArn:
+    Type: String
+
+Resources:
+
+  CognitoPoolArnParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: /workshop/cognito_pool_arn
+      Type: String
+      Value: !Ref CognitoPoolArn

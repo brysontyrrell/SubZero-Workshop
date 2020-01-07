@@ -23,3 +23,7 @@ S3 bucket names must be globally unique across all regions and all AWS accounts 
 ### Shared Cognito User Pool
 
 During this workshop you will secure your API Gateways using AWS Cognito. There is a per region limit of 5 Cognito User Pools. To avoid this there will be a single [Shared Cognito User Pool](shared-cognito-pool-template.yaml) for the workshop configured for the domain.
+
+### Parameters
+
+There are some values that need to be available to CloudFormation stacks across all regions supported in the workshop. These values have been populated into SSM Parameter Store using a StackSet (just as the artifact buckets).
