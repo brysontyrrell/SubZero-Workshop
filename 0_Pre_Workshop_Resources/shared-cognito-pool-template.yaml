@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+
+  DomainPrefix:
+    Type: String
+    Default: jamf-workshop
+
+Resources:
+
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Ref AWS::StackName
+
+  UserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      UserPoolId: !Ref UserPool
+      Domain: !Ref DomainPrefix
+
+  AppleIdLoginClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: appleid-logins
+      RefreshTokenValidity: 30
+      UserPoolId: !Ref UserPool
+      CallbackURLs:
+        - "http://localhost:8080/login/oauth2/code/cognito"
+      LogoutURLs:
+        - "http://localhost:8080/logout"
+      AllowedOAuthFlows:
+        - implicit
+      AllowedOAuthScopes:
+        - email
+        - openid
