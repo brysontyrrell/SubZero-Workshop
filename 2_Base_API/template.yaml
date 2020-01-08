@@ -30,14 +30,14 @@ Resources:
   Upload:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: ./src/upload
+      CodeUri: ./src/post_image
       Runtime: python3.8
       Handler: index.lambda_handler
       Events:
-        Post:
+        PostImage:
           Type: Api
           Properties:
-            Path: /upload
+            Path: /images
             Method: post
             RestApiId: !Ref WorkshopApi
 
