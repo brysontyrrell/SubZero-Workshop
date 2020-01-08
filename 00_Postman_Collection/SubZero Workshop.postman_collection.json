@@ -9,7 +9,7 @@
 			"name": "2 - Base API",
 			"item": [
 				{
-					"name": "Test /upload",
+					"name": "Test POST /images",
 					"request": {
 						"auth": {
 							"type": "noauth"
@@ -17,7 +17,7 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "https://{{AppName}}.workshop.dev.jamfnimbus.cloud/upload",
+							"raw": "https://{{AppName}}.workshop.dev.jamfnimbus.cloud/images",
 							"protocol": "https",
 							"host": [
 								"{{AppName}}",
@@ -27,7 +27,7 @@
 								"cloud"
 							],
 							"path": [
-								"upload"
+								"images"
 							]
 						}
 					},
@@ -40,7 +40,7 @@
 			"name": "3 - Cognito",
 			"item": [
 				{
-					"name": "Get Access Token",
+					"name": "Get Access Token (Client 1)",
 					"event": [
 						{
 							"listen": "test",
@@ -61,12 +61,12 @@
 							"basic": [
 								{
 									"key": "password",
-									"value": "{{OAuthClientSecret}}",
+									"value": "{{OAuthClientSecret1}}",
 									"type": "string"
 								},
 								{
 									"key": "username",
-									"value": "{{OAuthClientId}}",
+									"value": "{{OAuthClientId1}}",
 									"type": "string"
 								}
 							]
@@ -87,10 +87,74 @@
 									"key": "grant_type",
 									"value": "client_credentials",
 									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://auth.workshop.dev.jamfnimbus.cloud/oauth2/token",
+							"protocol": "https",
+							"host": [
+								"auth",
+								"workshop",
+								"dev",
+								"jamfnimbus",
+								"cloud"
+							],
+							"path": [
+								"oauth2",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Access Token (Client 2)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "e75d335a-55b8-40ce-9a8a-76a5aa5e07d0",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"AccessToken\", jsonData.access_token);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{OAuthClientSecret2}}",
+									"type": "string"
 								},
 								{
-									"key": "client_id",
-									"value": "{{OAuthClientId}}",
+									"key": "username",
+									"value": "{{OAuthClientId2}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "client_credentials",
 									"type": "text"
 								}
 							]
@@ -108,6 +172,131 @@
 							"path": [
 								"oauth2",
 								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Access Token (Client 3)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "e75d335a-55b8-40ce-9a8a-76a5aa5e07d0",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"AccessToken\", jsonData.access_token);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{OAuthClientSecret3}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{OAuthClientId3}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "client_credentials",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://auth.workshop.dev.jamfnimbus.cloud/oauth2/token",
+							"protocol": "https",
+							"host": [
+								"auth",
+								"workshop",
+								"dev",
+								"jamfnimbus",
+								"cloud"
+							],
+							"path": [
+								"oauth2",
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test POST /images (Cognito)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "{{AccessToken}}"
+							}
+						],
+						"url": {
+							"raw": "https://{{AppName}}.workshop.dev.jamfnimbus.cloud/images",
+							"protocol": "https",
+							"host": [
+								"{{AppName}}",
+								"workshop",
+								"dev",
+								"jamfnimbus",
+								"cloud"
+							],
+							"path": [
+								"images"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Test GET /images (Cognito",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "{{AccessToken}}"
+							}
+						],
+						"url": {
+							"raw": "https://{{AppName}}.workshop.dev.jamfnimbus.cloud/images",
+							"protocol": "https",
+							"host": [
+								"{{AppName}}",
+								"workshop",
+								"dev",
+								"jamfnimbus",
+								"cloud"
+							],
+							"path": [
+								"images"
 							]
 						}
 					},
