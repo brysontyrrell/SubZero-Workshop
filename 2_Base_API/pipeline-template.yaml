@@ -26,6 +26,7 @@ Parameters:
   AppName:
     Type: String
     Description: A URL friendly short name for the application.
+    AllowedPattern: '^[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?$'
     MaxLength: 63
 
   DeploymentRegion1:
@@ -245,6 +246,10 @@ Resources:
                 RoleArn: !GetAtt CloudFormationRole.Arn
                 StackName: !Sub ${AppName}-subzero-workshop
                 TemplatePath: !Sub 'BuildArtifact::packaged-${DeploymentRegion1}.yaml'
+                ParameterOverrides: !Sub |
+                  {
+                    "AppName": "${AppName}"
+                  }
               RunOrder: 1
 
             - Name: !Ref DeploymentRegion2
@@ -263,6 +268,10 @@ Resources:
                 RoleArn: !GetAtt CloudFormationRole.Arn
                 StackName: !Sub ${AppName}-subzero-workshop
                 TemplatePath: !Sub 'BuildArtifact::packaged-${DeploymentRegion2}.yaml'
+                ParameterOverrides: !Sub |
+                  {
+                    "AppName": "${AppName}"
+                  }
               RunOrder: 1
 
   PipelineWebHook:

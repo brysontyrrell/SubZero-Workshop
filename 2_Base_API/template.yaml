@@ -3,6 +3,11 @@ Transform: AWS::Serverless-2016-10-31
 
 Parameters:
 
+  AppName:
+    Type: String
+    AllowedPattern: '^[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?$'
+    MaxLength: 63
+
   RegionalCertificateArn:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /workshop/regional_certificate_arn

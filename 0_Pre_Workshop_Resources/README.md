@@ -27,3 +27,5 @@ During this workshop you will secure your API Gateways using AWS Cognito. There 
 ### Parameters
 
 There are some values that need to be available to CloudFormation stacks across all regions supported in the workshop. These values have been populated into SSM Parameter Store using a StackSet (just as the artifact buckets).
+
+> The `RegionalCertificateArnParameter` is populated by an inline Lambda function that executes as a part of the CloudFormation stack. StackSets do not support transforms (like `AWS::Serverless-2016-10-31`) so the Lambda function and its IAM role are standard CloudFormation resources.
