@@ -16,6 +16,15 @@ Parameters:
     Type: AWS::SSM::Parameter::Value<String>
     Default: /workshop/hosted_zone_id
 
+  UserPoolArn:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /workshop/cognito_pool_arn
+
+Globals:
+  Function:
+    Runtime: python3.8
+    Handler: index.lambda_handler
+
 Resources:
 
 # API Resources
@@ -25,19 +34,64 @@ Resources:
     Properties:
       StageName: Prod
       EndpointConfiguration: REGIONAL
+      DefinitionBody:
+        swagger: 2.0
+        info:
+          title: !Ref AWS::StackName
+        securityDefinitions:
+          CognitoAuthorizer:
+            type: apiKey
+            name: Authorization
+            in: header
+            x-amazon-apigateway-authtype: cognito_user_pools
+            x-amazon-apigateway-authorizer:
+              type: cognito_user_pools
+              providerARNs:
+                - !Ref UserPoolArn
+
+        paths:
+          "/images":
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: post
+                type: aws_proxy
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Upload.Arn}/invocations
+              responses: {}
+              security:
+                - CognitoAuthorizer:
+                    - "workshop-api/allow"
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: post
+                type: aws_proxy
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${List.Arn}/invocations
+              responses: {}
+              security:
+                - CognitoAuthorizer:
+                    - "workshop-api/allow"
 
   Upload:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./src/post_image
-      Runtime: python3.8
-      Handler: index.lambda_handler
       Events:
         PostImage:
           Type: Api
           Properties:
             Path: /images
             Method: post
+            RestApiId: !Ref WorkshopApi
+
+  List:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/get_images
+      Events:
+        GetImages:
+          Type: Api
+          Properties:
+            Path: /images
+            Method: get
             RestApiId: !Ref WorkshopApi
 
 # Route 53 Domain Resources
