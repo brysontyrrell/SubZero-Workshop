@@ -27,6 +27,9 @@ Globals:
 
 Resources:
 
+  Images:
+    Type: AWS::S3::Bucket
+
 # API Resources
 
   WorkshopApi:
@@ -78,6 +81,12 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./src/post_image
+      Environment:
+        Variables:
+          BUCKET_NAME: !Ref Images
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref Images
       Events:
         PostImage:
           Type: Api
