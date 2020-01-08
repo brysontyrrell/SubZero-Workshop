@@ -1,0 +1,143 @@
+{
+	"info": {
+		"_postman_id": "a1e6d93b-296e-4c70-8579-a176d90e99b5",
+		"name": "SubZero Workshop",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "2 - Base API",
+			"item": [
+				{
+					"name": "Test /upload",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://{{AppName}}.workshop.dev.jamfnimbus.cloud/upload",
+							"protocol": "https",
+							"host": [
+								"{{AppName}}",
+								"workshop",
+								"dev",
+								"jamfnimbus",
+								"cloud"
+							],
+							"path": [
+								"upload"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "3 - Cognito",
+			"item": [
+				{
+					"name": "Get Access Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "e75d335a-55b8-40ce-9a8a-76a5aa5e07d0",
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"postman.setEnvironmentVariable(\"AccessToken\", jsonData.access_token);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "password",
+									"value": "{{OAuthClientSecret}}",
+									"type": "string"
+								},
+								{
+									"key": "username",
+									"value": "{{OAuthClientId}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "grant_type",
+									"value": "client_credentials",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "{{OAuthClientId}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://auth.workshop.dev.jamfnimbus.cloud/oauth2/token",
+							"protocol": "https",
+							"host": [
+								"auth",
+								"workshop",
+								"dev",
+								"jamfnimbus",
+								"cloud"
+							],
+							"path": [
+								"oauth2",
+								"token"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "7d4bc531-a0ca-4d14-8ca4-4bf2c441a7be",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "4402f5a8-d2a6-43c6-8113-a5b8aeabcbbd",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
