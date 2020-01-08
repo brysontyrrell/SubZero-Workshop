@@ -19,8 +19,62 @@ Resources:
       UserPoolId: !Ref UserPool
       Domain: !Ref DomainPrefix
 
+  WorkshopApi:
+    Type: AWS::Cognito::UserPoolResourceServer
+    Properties:
+      Identifier: workshop-api
+      Name: WorkshopApi
+      UserPoolId: !Ref UserPool
+      Scopes:
+        - ScopeName: allow
+          ScopeDescription: Default scope
+
+  TestClient1:
+    Type: AWS::Cognito::UserPoolClient
+    DependsOn:
+      - WorkshopApi
+    Properties:
+      ClientName: !Sub "${AWS::StackName}-test-client-1"
+      GenerateSecret: True
+      UserPoolId: !Ref UserPool
+      AllowedOAuthFlowsUserPoolClient: True
+      AllowedOAuthFlows:
+        - client_credentials
+      AllowedOAuthScopes:
+        - workshop-api/allow
+
+  TestClient2:
+    Type: AWS::Cognito::UserPoolClient
+    DependsOn:
+      - WorkshopApi
+    Properties:
+      ClientName: !Sub "${AWS::StackName}-test-client-2"
+      GenerateSecret: True
+      UserPoolId: !Ref UserPool
+      AllowedOAuthFlowsUserPoolClient: True
+      AllowedOAuthFlows:
+        - client_credentials
+      AllowedOAuthScopes:
+        - workshop-api/allow
+
+  TestClient3:
+    Type: AWS::Cognito::UserPoolClient
+    DependsOn:
+      - WorkshopApi
+    Properties:
+      ClientName: !Sub "${AWS::StackName}-test-client-3"
+      GenerateSecret: True
+      UserPoolId: !Ref UserPool
+      AllowedOAuthFlowsUserPoolClient: True
+      AllowedOAuthFlows:
+        - client_credentials
+      AllowedOAuthScopes:
+        - workshop-api/allow
+
   AppleIdLoginClient:
     Type: AWS::Cognito::UserPoolClient
+    DependsOn:
+      - WorkshopApi
     Properties:
       ClientName: appleid-logins
       RefreshTokenValidity: 30
@@ -29,8 +83,10 @@ Resources:
         - "http://localhost:8080/login/oauth2/code/cognito"
       LogoutURLs:
         - "http://localhost:8080/logout"
+      AllowedOAuthFlowsUserPoolClient: True
       AllowedOAuthFlows:
         - implicit
       AllowedOAuthScopes:
         - email
         - openid
+        - workshop-api/allow
