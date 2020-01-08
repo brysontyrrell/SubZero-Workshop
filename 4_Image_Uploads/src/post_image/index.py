@@ -1,0 +1,62 @@
+import base64
+from cgi import parse_header
+import hashlib
+import json
+
+from requests_toolbelt import multipart
+
+ACCEPTED_CONTENT_TYPE = 'multipart/form-data'
+
+
+def lambda_handler(event, context):
+    print(event)
+    content_type = event['headers'].get('Content-Type', '')
+
+    if not content_type_check(content_type):
+        return {
+            "isBase64Encoded": False,
+            "statusCode": 415,
+            "body": json.dumps({'message': 'Unsupported Media Type'}),
+            "headers": {
+                "Content-Type": "application/json"
+            }
+        }
+
+    raw_body = base64.b64decode(event['body'])
+    multipart_data = multipart.decoder.MultipartDecoder(raw_body, content_type)
+    # {'name': 'file', 'filename': 'filename.png'}
+    _, multipart_headers = parse_header(
+        multipart_data.parts[0].headers[b'Content-Disposition'].decode()
+    )
+    multipart_binary_content = multipart_data.parts[0].content
+    multipart_content_type = multipart_data.parts[0].headers[b'Content-Type'].decode()
+
+    sha_256_hash = hashlib.sha256(multipart_binary_content).hexdigest()
+
+    return {
+        "isBase64Encoded": False,
+        "statusCode": 200,
+        "body": json.dumps(
+            {
+                "message": "Success!",
+                "path": event['path'],
+                "method": event['httpMethod'],
+                "token_claims": event['requestContext']['authorizer']['claims'],
+                "file": {
+                    "filename": multipart_headers.get('filename'),
+                    "mime-type": multipart_content_type,
+                    "size": len(multipart_binary_content),
+                    "sha256": sha_256_hash
+                }
+            }
+        ),
+        "headers": {
+            "Content-Type": "application/json"
+        },
+    }
+
+
+def content_type_check(value):
+    if value.split(';')[0] == ACCEPTED_CONTENT_TYPE:
+        return True
+    return False
