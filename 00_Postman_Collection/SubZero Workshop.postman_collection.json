@@ -9,7 +9,7 @@
 			"name": "2 - Base API",
 			"item": [
 				{
-					"name": "Test POST /images",
+					"name": "Test POST /api/images",
 					"request": {
 						"auth": {
 							"type": "noauth"
@@ -17,7 +17,7 @@
 						"method": "POST",
 						"header": [],
 						"url": {
-							"raw": "https://{{AppName}}.workshop.dev.jamfnimbus.cloud/images",
+							"raw": "https://{{AppName}}.workshop.dev.jamfnimbus.cloud/api/images",
 							"protocol": "https",
 							"host": [
 								"{{AppName}}",
@@ -27,6 +27,7 @@
 								"cloud"
 							],
 							"path": [
+								"api",
 								"images"
 							]
 						}
@@ -247,7 +248,7 @@
 					"response": []
 				},
 				{
-					"name": "Test POST /images (Cognito)",
+					"name": "Test POST /api/images (Cognito)",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -258,7 +259,7 @@
 							}
 						],
 						"url": {
-							"raw": "https://{{AppName}}.workshop.dev.jamfnimbus.cloud/images",
+							"raw": "https://{{AppName}}.workshop.dev.jamfnimbus.cloud/api/images",
 							"protocol": "https",
 							"host": [
 								"{{AppName}}",
@@ -268,6 +269,7 @@
 								"cloud"
 							],
 							"path": [
+								"api",
 								"images"
 							]
 						}
@@ -275,7 +277,7 @@
 					"response": []
 				},
 				{
-					"name": "Test GET /images (Cognito",
+					"name": "Test GET /api/images (Cognito)",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -286,7 +288,7 @@
 							}
 						],
 						"url": {
-							"raw": "https://{{AppName}}.workshop.dev.jamfnimbus.cloud/images",
+							"raw": "https://{{AppName}}.workshop.dev.jamfnimbus.cloud/api/images",
 							"protocol": "https",
 							"host": [
 								"{{AppName}}",
@@ -296,6 +298,84 @@
 								"cloud"
 							],
 							"path": [
+								"api",
+								"images"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "4 - Image Uploads",
+			"item": [
+				{
+					"name": "POST /api/images (Cognito)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "{{AccessToken}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "https://{{AppName}}.workshop.dev.jamfnimbus.cloud/api/images",
+							"protocol": "https",
+							"host": [
+								"{{AppName}}",
+								"workshop",
+								"dev",
+								"jamfnimbus",
+								"cloud"
+							],
+							"path": [
+								"api",
+								"images"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET /api/images (Cognito)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "{{AccessToken}}"
+							}
+						],
+						"url": {
+							"raw": "https://{{AppName}}.workshop.dev.jamfnimbus.cloud/api/images",
+							"protocol": "https",
+							"host": [
+								"{{AppName}}",
+								"workshop",
+								"dev",
+								"jamfnimbus",
+								"cloud"
+							],
+							"path": [
+								"api",
 								"images"
 							]
 						}

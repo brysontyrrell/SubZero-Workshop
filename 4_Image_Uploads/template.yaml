@@ -56,7 +56,7 @@ Resources:
               providerARNs:
                 - !Ref UserPoolArn
         paths:
-          "/images":
+          "/api/images":
             post:
               x-amazon-apigateway-integration:
                 httpMethod: post
@@ -91,7 +91,7 @@ Resources:
         PostImage:
           Type: Api
           Properties:
-            Path: /images
+            Path: /api/images
             Method: post
             RestApiId: !Ref WorkshopApi
 
@@ -103,7 +103,7 @@ Resources:
         GetImages:
           Type: Api
           Properties:
-            Path: /images
+            Path: /api/images
             Method: get
             RestApiId: !Ref WorkshopApi
 

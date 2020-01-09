@@ -39,7 +39,7 @@ Resources:
         PostImage:
           Type: Api
           Properties:
-            Path: /images
+            Path: /api/images
             Method: post
             RestApiId: !Ref WorkshopApi
 

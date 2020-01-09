@@ -11,7 +11,7 @@ Text
 
 ### Module Challenge
 
-The `GET /images` endpoint is not functioning. Compare the `List` Lambda function resource to the `Upload` functionn and add the missing elements required to grant S3 read permissions.
+The `GET /api/images` endpoint is not functioning. Compare the `List` Lambda function resource to the `Upload` functionn and add the missing elements required to grant S3 read permissions.
 
 Reference the [SAM Policy Templates](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-policy-templates.html) documentation to find the appropriate role.
 

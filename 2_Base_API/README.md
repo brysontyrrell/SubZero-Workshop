@@ -13,7 +13,7 @@ With a pipeline in place, create the base API for the application. Your updates 
 
 ### Module Challenge
 
-Add a second `AWS::Serverless::Function` resource to the template to create a `GET /images` endpoint. Use `/src/get_images` for the `CodeUri`. 
+Add a second `AWS::Serverless::Function` resource to the template to create a `GET /api/images` endpoint. Use `/src/get_images` for the `CodeUri`. 
 
 As an additional challenge update both Lambda function resources to use SAM's `Globals` feature.
 
