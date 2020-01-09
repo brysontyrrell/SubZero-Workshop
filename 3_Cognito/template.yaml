@@ -81,6 +81,8 @@ Resources:
             Path: /images
             Method: post
             RestApiId: !Ref WorkshopApi
+#            AuthorizationScopes:
+#              - "workshop-api/allow"
 
   List:
     Type: AWS::Serverless::Function
