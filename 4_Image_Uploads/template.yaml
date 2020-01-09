@@ -27,7 +27,7 @@ Globals:
 
 Resources:
 
-  Images:
+  ImageStore:
     Type: AWS::S3::Bucket
 
 # API Resources
@@ -83,10 +83,10 @@ Resources:
       CodeUri: ./src/post_image
       Environment:
         Variables:
-          BUCKET_NAME: !Ref Images
+          BUCKET_NAME: !Ref ImageStore
       Policies:
         - S3CrudPolicy:
-            BucketName: !Ref Images
+            BucketName: !Ref ImageStore
       Events:
         PostImage:
           Type: Api
