@@ -13,15 +13,19 @@ The workshop is split across 6 modules over the course of the day. Each module w
 
 All challenges revolve around modifying CloudFormation templates and resources - you are not required to know or write Python as a part of this workshop. If you do complete the challenges it is recommended you copy the files for the next module and overwrite your changes.
 
-### [Pipeline](1_Pipeline/README.md) (10:00 - 10:30 / 30 min)
+### Introduction and Setup (10:00 - 10:15 / 15 min)
+
+Get setup and ready for the workshop.
+
+### [Pipeline](1_Pipeline/README.md) (10:15 - 11:00 / 45 min)
 
 Create a pipeline for building and deploying the serverless application automatically on commits.
 
-### [Base API](2_Base_API/README.md) (10:30 - 11:15 / 45 min)
+### [Base API](2_Base_API/README.md) (11:00 - 11:45 / 45 min)
 
 Update the template to create the base API Gateway and its Lambda functions.
 
-### [Cognito](3_Cognito/README.md) (11:15 - 11:45 / 30 min)
+### [Cognito](3_Cognito/README.md) (11:45 - 12:00 / 15 min)
 
 Secure access to the API Gateway using Cognito.
 
