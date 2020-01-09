@@ -39,8 +39,44 @@ Globals:
 
 Resources:
 
+  UploadQueue:
+    Type: AWS::SQS::Queue
+
+  UploadQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref UploadQueue
+      PolicyDocument:
+        Statement:
+          - Action: sqs:SendMessage
+            Effect: Allow
+            Resource: !GetAtt UploadQueue.Arn
+            Principal:
+              AWS: "*"
+            Condition:
+              ArnLike:
+                aws:SourceArn: !Sub "arn:aws:s3:::${AWS::StackName}-*"
+
   ImageStore:
     Type: AWS::S3::Bucket
+    DependsOn:
+      UploadQueuePolicy
+    Properties:
+      LifecycleConfiguration:
+        Rules:
+          - Prefix: waiting-room/
+            ExpirationInDays: 1
+            Status: Enabled
+      NotificationConfiguration:
+        QueueConfigurations:
+          - Event: "s3:ObjectCreated:*"
+            Queue: !GetAtt UploadQueue.Arn
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: waiting-room/
 
   ImageDatabase:
     Type: AWS::DynamoDB::Table
@@ -171,6 +207,133 @@ Resources:
       Region: !Ref AWS::Region
       Type: A
 
+# State Machine
+
+  ImageQueuePoller:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/image_queue_poller
+      Environment:
+        Variables:
+          STEP_FUNCTION_ARN: !Ref StateMachine
+      Policies:
+        - StepFunctionsExecutionPolicy:
+            StateMachineName: !GetAtt StateMachine.Name
+      Events:
+        NewObjects:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt UploadQueue.Arn
+            BatchSize: 10
+            Enabled: true
+
+  StateMachine:
+    Type: AWS::StepFunctions::StateMachine
+    Properties:
+      RoleArn: !GetAtt StateMachineRole.Arn
+      DefinitionString: !Sub |
+        {
+          "StartAt": "Write Image Hash",
+          "States": {
+
+            "Write Image Hash": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::dynamodb:putItem",
+              "Parameters": {
+                "TableName": "${ImageDatabase}",
+                "Item": {
+                  "pk": {"S": "IMAGE"},
+                  "sk": {"S.$": "$.sha256-hash"}
+                },
+                "ConditionExpression": "attribute_not_exists(sk)"
+              },
+              "Catch": [
+                {
+                  "ErrorEquals": ["DynamoDB.ConditionalCheckFailedException"],
+                  "ResultPath": null,
+                  "Next": "Link Client to Image"
+                }
+              ],
+              "Next": "Parallel Image Resizing"
+            },
+
+            "Parallel Image Resizing": {
+              "Type": "Parallel",
+              "Branches": [
+                {
+                  "StartAt": "Pass State 1",
+                  "States": {
+                    "Pass State 1": {
+                      "Type": "Pass",
+                      "End": true
+                    }
+                  }
+                },
+                {
+                  "StartAt": "Pass State 2",
+                  "States": {
+                    "Pass State 2": {
+                      "Type": "Pass",
+                      "End": true
+                    }
+                  }
+                },
+                {
+                  "StartAt": "Pass State 3",
+                  "States": {
+                    "Pass State 3": {
+                      "Type": "Pass",
+                      "End": true
+                    }
+                  }
+                }
+              ],
+              "Next": "Link Client to Image"
+            },
+
+            "Link Client to Image": {
+              "Type": "Task",
+              "Resource": "arn:aws:states:::dynamodb:putItem",
+              "Parameters": {
+                "TableName": "${ImageDatabase}",
+                "Item": {
+                  "pk": {"S.$": "$.uploading-client"},
+                  "sk": {"S.$": "$.composite"},
+                  "sha256": {"S.$": "$.sha256-hash"},
+                  "filename": {"S.$": "$.filename"}
+                }
+              },
+              "End": true
+            }
+
+          }
+        }
+
+  StateMachineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - !Sub 'states.${AWS::Region}.amazonaws.com'
+            Action: sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: StatesExecutionPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                Resource:
+                  - !GetAtt ImageDatabase.Arn
+
 # Global DynamoDB Table Creation
 
   GlobalDynamoDBTableSetup:
@@ -188,7 +351,7 @@ Resources:
               - dynamodb:DescribeLimits
               - iam:CreateServiceLinkedRole
             Resource: '*'
-      InlineCode:  |
+      InlineCode: |
         import boto3
         import cfnresponse
 
