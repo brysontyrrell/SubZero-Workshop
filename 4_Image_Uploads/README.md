@@ -17,6 +17,6 @@ Reference the [SAM Policy Templates](https://docs.aws.amazon.com/serverless-appl
 
 As an additional challenge make use of SAM's `Globals` feature.
 
-### Next Module: [Image Processing](../5_Image_Processing/README.md)
+### Next Module: [Image Processing](../5_Image_Processing/)
 
 Once instructed, move on to the next module and update your repository with the provided files (overwrite existing files and your changes).

@@ -17,29 +17,29 @@ All challenges revolve around modifying CloudFormation templates and resources -
 
 Get setup and ready for the workshop.
 
-### [Pipeline](1_Pipeline/README.md) (10:15 - 11:00 / 45 min)
+### [Pipeline](1_Pipeline/) (10:15 - 11:00 / 45 min)
 
 Create a pipeline for building and deploying the serverless application automatically on commits.
 
-### [Base API](2_Base_API/README.md) (11:00 - 11:45 / 45 min)
+### [Base API](2_Base_API/) (11:00 - 11:45 / 45 min)
 
 Update the template to create the base API Gateway and its Lambda functions.
 
-### [Cognito](3_Cognito/README.md) (11:45 - 12:00 / 15 min)
+### [Cognito](3_Cognito/) (11:45 - 12:00 / 15 min)
 
 Secure access to the API Gateway using Cognito.
 
 ### Lunch (12:00 - 1:00)
 
-### [Image Uploads](4_Image_Uploads/README.md) (1:00 - 2:00 / 1 hr)
+### [Image Uploads](4_Image_Uploads/) (1:00 - 2:00 / 1 hr)
 
 Update the API to accept image files and save them to a S3 bucket.
 
-### [Image Processing](5_Image_Processing/README.md) (2:00 - 3:00 / 1 hr)
+### [Image Processing](5_Image_Processing/) (2:00 - 3:00 / 1 hr)
 
 Process uploaded images and record them to a DynamoDB table.
 
-### [Monitoring](6_Monitoring/README.md) (3:00 - 4:00 / 1 hr)
+### [Monitoring](6_Monitoring/) (3:00 - 4:00 / 1 hr)
 
 View metrics and set alerts using X-Ray and CloudWatch.
 

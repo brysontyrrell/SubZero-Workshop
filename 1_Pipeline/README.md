@@ -44,6 +44,6 @@ Update your pipeline to deploy to a second region in the US. Target the secondar
 - Add an `ArtifactStore` for the new region to the `Pipeline`.
 - Add a `Deployment` action for the new region.
 
-### Next Module: [Base API](../2_Base_API/README.md)
+### Next Module: [Base API](../2_Base_API/)
 
 Once instructed, move on to the next module and update your repository with the provided files (overwrite existing files and your changes).
