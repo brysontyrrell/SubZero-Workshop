@@ -261,27 +261,27 @@ Resources:
               "Type": "Parallel",
               "Branches": [
                 {
-                  "StartAt": "Pass State 1",
+                  "StartAt": "Unsized JPEG",
                   "States": {
-                    "Pass State 1": {
+                    "Unsized JPEG": {
                       "Type": "Pass",
                       "End": true
                     }
                   }
                 },
                 {
-                  "StartAt": "Pass State 2",
+                  "StartAt": "Size 2048 JPEG",
                   "States": {
-                    "Pass State 2": {
+                    "Size 2048 JPEG": {
                       "Type": "Pass",
                       "End": true
                     }
                   }
                 },
                 {
-                  "StartAt": "Pass State 3",
+                  "StartAt": "Size 1024 JPEG",
                   "States": {
-                    "Pass State 3": {
+                    "Size 1024 JPEG": {
                       "Type": "Pass",
                       "End": true
                     }
