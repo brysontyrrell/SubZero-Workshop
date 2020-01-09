@@ -44,9 +44,9 @@ def lambda_handler(event, context):
         Body=multipart_binary_content,
         ContentType=multipart_content_type,
         Metadata={
-            "UploadingClient": client_token_claims['client_id'],
-            "SHA256Hash": sha_256_hash,
-            "FileName": multipart_headers.get('filename')
+            "uploading-client": client_token_claims['client_id'],
+            "sha256-hash": sha_256_hash,
+            "filename": multipart_headers.get('filename')
         }
     )
 
