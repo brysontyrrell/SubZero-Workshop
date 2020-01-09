@@ -1,0 +1,231 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+
+Parameters:
+
+  AppName:
+    Type: String
+    AllowedPattern: '^[a-z0-9](?:[a-z0-9\-]{0,61}[a-z0-9])?$'
+    MaxLength: 63
+
+  RegionalCertificateArn:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /workshop/regional_certificate_arn
+
+  HostedZoneId:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /workshop/hosted_zone_id
+
+  UserPoolArn:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /workshop/cognito_pool_arn
+
+  DeploymentRegions:
+    Type: CommaDelimitedList
+
+Conditions:
+  IsPrimaryRegion:
+    Fn::Equals:
+      - !Ref AWS::Region
+      - !Select [0, !Ref DeploymentRegions]
+
+Globals:
+  Function:
+    Runtime: python3.8
+    Handler: index.lambda_handler
+    Environment:
+      Variables:
+        BUCKET_NAME: !Ref ImageStore
+
+Resources:
+
+  ImageStore:
+    Type: AWS::S3::Bucket
+
+  ImageDatabase:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub "${AppName}-image-database"
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+      StreamSpecification:
+        StreamViewType: NEW_AND_OLD_IMAGES
+
+# API Resources
+
+  WorkshopApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      EndpointConfiguration: REGIONAL
+      BinaryMediaTypes:
+        - 'application/octet-stream'
+        - 'image/*'
+        - 'multipart/form-data'
+      DefinitionBody:
+        swagger: 2.0
+        info:
+          title: !Ref AWS::StackName
+        securityDefinitions:
+          CognitoAuthorizer:
+            type: apiKey
+            name: Authorization
+            in: header
+            x-amazon-apigateway-authtype: cognito_user_pools
+            x-amazon-apigateway-authorizer:
+              type: cognito_user_pools
+              providerARNs:
+                - !Ref UserPoolArn
+        paths:
+          "/api/images":
+            post:
+              x-amazon-apigateway-integration:
+                httpMethod: post
+                type: aws_proxy
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Upload.Arn}/invocations
+                contentHandling: "CONVERT_TO_BINARY"
+              responses: {}
+              security:
+                - CognitoAuthorizer:
+                    - "workshop-api/allow"
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: post
+                type: aws_proxy
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${List.Arn}/invocations
+              responses: {}
+              security:
+                - CognitoAuthorizer:
+                    - "workshop-api/allow"
+
+  Upload:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/post_image
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref ImageStore
+      Events:
+        PostImage:
+          Type: Api
+          Properties:
+            Path: /api/images
+            Method: post
+            RestApiId: !Ref WorkshopApi
+
+  List:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/get_images
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref ImageStore
+      Events:
+        GetImages:
+          Type: Api
+          Properties:
+            Path: /api/images
+            Method: get
+            RestApiId: !Ref WorkshopApi
+
+# Route 53 Domain Resources
+
+  ApiCustomDomain:
+    Type: AWS::ApiGateway::DomainName
+    Properties:
+      DomainName: !Sub "${AppName}.workshop.dev.jamfnimbus.cloud"
+      RegionalCertificateArn: !Ref RegionalCertificateArn
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+
+  ApiBasePath:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      DomainName: !Ref ApiCustomDomain
+      RestApiId: !Ref WorkshopApi
+      Stage: Prod
+    DependsOn:
+      - WorkshopApi
+      - WorkshopApiProdStage
+      - ApiCustomDomain
+
+  RegionalRoute53Record:
+    Type: AWS::Route53::RecordSet
+    Properties:
+      Name: !Sub "${AppName}.workshop.dev.jamfnimbus.cloud"
+      SetIdentifier: !Sub '${AppName}-${AWS::Region}'
+      AliasTarget:
+        DNSName: !GetAtt ApiCustomDomain.RegionalDomainName
+        HostedZoneId: !GetAtt ApiCustomDomain.RegionalHostedZoneId
+      HostedZoneId: !Ref HostedZoneId
+      Region: !Ref AWS::Region
+      Type: A
+
+# Global DynamoDB Table Creation
+
+  GlobalDynamoDBTableSetup:
+    Type: AWS::Serverless::Function
+    Condition: IsPrimaryRegion
+    Properties:
+      Runtime: python3.7
+      Handler: index.lambda_handler
+      Timeout: 60
+      Policies:
+        Statement:
+          - Effect: Allow
+            Action:
+              - dynamodb:CreateGlobalTable
+              - dynamodb:DescribeLimits
+              - iam:CreateServiceLinkedRole
+            Resource: '*'
+      InlineCode:  |
+        import boto3
+        import cfnresponse
+
+        client = boto3.client('dynamodb')
+
+
+        def lambda_handler(event, context):
+            table_name = event['ResourceProperties']['TableName']
+            regions = event['ResourceProperties']['Regions']
+            success_response = {}
+
+            if event['RequestType'] == 'Create':
+                try:
+                    response = client.create_global_table(
+                        GlobalTableName=table_name,
+                        ReplicationGroup=[{'RegionName': v} for v in regions]
+                    )
+                    global_table_description = response["GlobalTableDescription"]
+                    success_response = {
+                        "GlobalTableArn": global_table_description["GlobalTableArn"],
+                        "CreationDateTime": global_table_description["CreationDateTime"].isoformat(),
+                        "GlobalTableStatus": global_table_description["GlobalTableStatus"],
+                        "GlobalTableName": global_table_description["GlobalTableName"]
+                    }
+                except Exception as error:
+                    print(error)
+                    failed_response = {'Error': type(error).__name__, 'Message': str(error)}
+                    cfnresponse.send(event, context, cfnresponse.FAILED, failed_response)
+            elif event['RequestType'] == 'Update':
+                success_response = event['OldResourceProperties']
+
+            cfnresponse.send(event, context, cfnresponse.SUCCESS, success_response)
+
+  CreateGlobalDynamoDBTable:
+    Type: AWS::CloudFormation::CustomResource
+    Condition: IsPrimaryRegion
+    Properties:
+      ServiceToken: !GetAtt GlobalDynamoDBTableSetup.Arn
+      TableName: !Ref ImageDatabase
+      Regions: !Ref DeploymentRegions
