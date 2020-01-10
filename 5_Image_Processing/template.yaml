@@ -178,6 +178,25 @@ Resources:
             Method: get
             RestApiId: !Ref WorkshopApi
 
+  Download:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/get_image_by_sha
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref ImageDatabase
+        - Statement:
+            - Effect: Allow
+              Action: s3:GetObject
+              Resource: 'arn:aws:s3:::bryson-subzero-workshop-*'
+      Events:
+        GetImages:
+          Type: Api
+          Properties:
+            Path: /api/images/{sha}
+            Method: get
+            RestApiId: !Ref WorkshopApi
+
 # Route 53 Domain Resources
 
   ApiCustomDomain:
@@ -263,7 +282,10 @@ Resources:
                 "TableName": "${ImageDatabase}",
                 "Item": {
                   "pk": {"S": "IMAGE"},
-                  "sk": {"S.$": "$.sha256-hash"}
+                  "sk": {"S.$": "$.sha256-hash"},
+                  "mimetype": {"S.$": "$.mimetype"},
+                  "origin_bucket": {"S.$": "$.origin-bucket"},
+                  "origin_region": {"S.$": "$.origin-region"}
                 },
                 "ConditionExpression": "attribute_not_exists(sk)"
               },

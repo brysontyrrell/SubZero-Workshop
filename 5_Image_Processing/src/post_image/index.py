@@ -67,8 +67,7 @@ def lambda_handler(event, context):
                     "filename": multipart_headers.get('filename'),
                     "mime-type": multipart_content_type,
                     "size": len(multipart_binary_content),
-                    "sha256": sha_256_hash,
-                    "origin-region": AWS_REGION
+                    "sha256": sha_256_hash
                 }
             }
         ),

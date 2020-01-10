@@ -8,6 +8,7 @@ import boto3
 
 patch(["boto3"])
 
+AWS_REGION = os.getenv('AWS_REGION')
 STEP_FUNCTION_ARN = os.getenv("STEP_FUNCTION_ARN")
 
 s3_client = boto3.client('s3')
@@ -36,7 +37,9 @@ def lambda_handler(event, context):
                         'key': source_key,
                         'filaname_hash': filename_hash,
                         'composite': f"{metadata['Metadata']['sha256-hash']}_{filename_hash}",
-                        "mimetype": metadata['ContentType']
+                        "mimetype": metadata['ContentType'],
+                        "origin-bucket": source_bucket,
+                        "origin-region": AWS_REGION
                     },
                     **metadata['Metadata']
                 )
