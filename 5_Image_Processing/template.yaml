@@ -233,6 +233,19 @@ Resources:
             BatchSize: 10
             Enabled: true
 
+  ImageResize:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./src/image_resize
+      MemorySize: 512
+      Timeout: 5
+      Tracing: Active
+      Layers:
+        - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:python38-pillow:1
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref ImageStore
+
   StateMachine:
     Type: AWS::StepFunctions::StateMachine
     Properties:
@@ -269,28 +282,61 @@ Resources:
               "ResultPath": null,
               "Branches": [
                 {
-                  "StartAt": "Unsized JPEG",
+                  "StartAt": "Unsized",
                   "States": {
-                    "Unsized JPEG": {
-                      "Type": "Pass",
+                    "Unsized": {
+                      "Type": "Task",
+                      "Resource": "arn:aws:states:::lambda:invoke",
+                      "Parameters": {
+                        "FunctionName": "${ImageResize.Arn}",
+                        "Payload": {
+                          "image_size": 0,
+                          "bucket.$": "$.bucket",
+                          "key.$": "$.key",
+                          "sha256.$": "$.sha256-hash",
+                          "mimetype.$": "$.mimetype"
+                        }
+                      },
                       "End": true
                     }
                   }
                 },
                 {
-                  "StartAt": "Size 2048 JPEG",
+                  "StartAt": "Size 2048",
                   "States": {
-                    "Size 2048 JPEG": {
-                      "Type": "Pass",
+                    "Size 2048": {
+                      "Type": "Task",
+                      "Resource": "arn:aws:states:::lambda:invoke",
+                      "Parameters": {
+                        "FunctionName": "${ImageResize.Arn}",
+                        "Payload": {
+                          "image_size": 2048,
+                          "bucket.$": "$.bucket",
+                          "key.$": "$.key",
+                          "sha256.$": "$.sha256-hash",
+                          "mimetype.$": "$.mimetype"
+                        }
+                      },
                       "End": true
                     }
                   }
                 },
                 {
-                  "StartAt": "Size 1024 JPEG",
+                  "StartAt": "Size 1024",
                   "States": {
-                    "Size 1024 JPEG": {
-                      "Type": "Pass",
+                    "Size 1024": {
+                      "Type": "Task",
+                      "Resource": "arn:aws:states:::lambda:invoke",
+                      "Parameters": {
+                        "FunctionName": "${ImageResize.Arn}",
+                        "Payload": {
+                          "image_size": 1024,
+                          "bucket.$": "$.bucket",
+                          "key.$": "$.key",
+                          "sha256.$": "$.sha256-hash",
+                          "mimetype.$": "$.mimetype"
+                        }
+                      },
                       "End": true
                     }
                   }
@@ -341,6 +387,9 @@ Resources:
                   - dynamodb:UpdateItem
                 Resource:
                   - !GetAtt ImageDatabase.Arn
+              - Effect: Allow
+                Action: lambda:InvokeFunction
+                Resource: !GetAtt ImageResize.Arn
 
 # Global DynamoDB Table Creation
 

@@ -11,6 +11,7 @@ from requests_toolbelt import multipart
 patch(["boto3"])
 
 ACCEPTED_CONTENT_TYPE = 'multipart/form-data'
+AWS_REGION = os.getenv('AWS_REGION')
 BUCKET_NAME = os.getenv('BUCKET_NAME')
 
 s3_client = boto3.client('s3')
@@ -66,7 +67,8 @@ def lambda_handler(event, context):
                     "filename": multipart_headers.get('filename'),
                     "mime-type": multipart_content_type,
                     "size": len(multipart_binary_content),
-                    "sha256": sha_256_hash
+                    "sha256": sha_256_hash,
+                    "origin-region": AWS_REGION
                 }
             }
         ),

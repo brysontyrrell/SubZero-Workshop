@@ -35,7 +35,8 @@ def lambda_handler(event, context):
                         'bucket': source_bucket,
                         'key': source_key,
                         'filaname_hash': filename_hash,
-                        'composite': f"{metadata['Metadata']['sha256-hash']}_{filename_hash}"
+                        'composite': f"{metadata['Metadata']['sha256-hash']}_{filename_hash}",
+                        "mimetype": metadata['ContentType']
                     },
                     **metadata['Metadata']
                 )
