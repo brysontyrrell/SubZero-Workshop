@@ -1,6 +1,8 @@
 # SubZero Workshop
 
-A serverless workshop for SubZero 2020.
+In this workshop you will create a continuously delivered serverless application that accepts, processes, and stores images using a variety of AWS services.
+
+![](images/Application-Diagram.png)
 
 ## Resources
 

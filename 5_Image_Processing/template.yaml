@@ -37,6 +37,7 @@ Globals:
     Environment:
       Variables:
         BUCKET_NAME: !Ref ImageStore
+        TABLE_NAME: !Ref ImageDatabase
     Layers:
       - !Sub arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:layer:python38-aws-xray-sdk:1
 
@@ -167,8 +168,8 @@ Resources:
     Properties:
       CodeUri: ./src/get_images
       Policies:
-        - S3ReadPolicy:
-            BucketName: !Ref ImageStore
+        - DynamoDBReadPolicy:
+            TableName: !Ref ImageDatabase
       Events:
         GetImages:
           Type: Api
