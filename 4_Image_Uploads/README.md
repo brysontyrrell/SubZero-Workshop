@@ -2,7 +2,9 @@
 
 ## Image Uploads
 
-Text
+Lambda functions associated with the API Gateway endpoints will now process uploaded images and return data about those uploaded images.
+
+Each Lambda function servers a specific purpose. `Upload` accepts an image file and writes it to an S3 bucket. The `List` function returns a JSON array of all the uploaded files.
 
 ### AWS Services / Features
 
