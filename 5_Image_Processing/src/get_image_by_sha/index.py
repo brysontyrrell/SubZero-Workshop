@@ -27,20 +27,23 @@ dynamodb = session.resource('dynamodb').Table(TABLE_NAME)
 def lambda_handler(event, context):
     client_token_claims = event['requestContext']['authorizer']['claims']
     sha = event['pathParameters']['sha']
-    size = event['queryStringParameters'].get('size', '0')
+    try:
+        size = event['queryStringParameters']['size']
+    except:
+        size = 0
 
     link_response = dynamodb.query(
         Select='COUNT',
         KeyConditionExpression=
-        Key('pk').eq(client_token_claims['client_id'] & Key('sk').begins_with(sha))
+        Key('pk').eq(client_token_claims['client_id']) & Key('sk').begins_with(sha)
     )
 
     if link_response['Count'] == 0:
         return NOT_FOUND
 
-    image_response = dynamodb.get_item(KeyConditionExpression=Key('pk').eq(sha))
+    image_response = dynamodb.get_item(Key={'pk': 'IMAGE', 'sk': sha})
     extension = mimetypes.guess_extension(image_response['Item']['mimetype'])
-    key_path = os.path.join('image', sha, f"{size}{extension}")
+    key_path = os.path.join('images', sha, f"{size}{extension}")
 
     s3_client = session.client(
         's3',
@@ -59,8 +62,7 @@ def lambda_handler(event, context):
             'Bucket': image_response['Item']['origin_bucket'],
             'Key': key_path
         },
-        ExpiresIn=60,
-        HttpMethod='GET'
+        ExpiresIn=60
     )
 
     return {

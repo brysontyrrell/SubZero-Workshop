@@ -148,6 +148,17 @@ Resources:
                 - CognitoAuthorizer:
                     - "workshop-api/allow"
 
+          "/api/images/{sha}":
+            get:
+              x-amazon-apigateway-integration:
+                httpMethod: post
+                type: aws_proxy
+                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Download.Arn}/invocations
+              responses: {}
+              security:
+                - CognitoAuthorizer:
+                    - "workshop-api/allow"
+
   Upload:
     Type: AWS::Serverless::Function
     Properties:
@@ -187,8 +198,10 @@ Resources:
             TableName: !Ref ImageDatabase
         - Statement:
             - Effect: Allow
-              Action: s3:GetObject
-              Resource: 'arn:aws:s3:::bryson-subzero-workshop-*'
+              Action:
+                - s3:GetObject
+                - s3:ListBucket
+              Resource: !Sub 'arn:aws:s3:::${AWS::StackName}-*'
       Events:
         GetImages:
           Type: Api
