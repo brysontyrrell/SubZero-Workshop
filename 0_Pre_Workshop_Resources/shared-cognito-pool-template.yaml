@@ -28,6 +28,10 @@ Resources:
       Scopes:
         - ScopeName: allow
           ScopeDescription: Default scope
+        - ScopeName: custom1
+          ScopeDescription: Custom scope 1
+        - ScopeName: custom2
+          ScopeDescription: Custom scope 2
 
   TestClient1:
     Type: AWS::Cognito::UserPoolClient
@@ -56,6 +60,7 @@ Resources:
         - client_credentials
       AllowedOAuthScopes:
         - workshop-api/allow
+        - workshop-api/custom1
 
   TestClient3:
     Type: AWS::Cognito::UserPoolClient
@@ -70,6 +75,8 @@ Resources:
         - client_credentials
       AllowedOAuthScopes:
         - workshop-api/allow
+        - workshop-api/custom1
+        - workshop-api/custom2
 
   AppleIdLoginClient:
     Type: AWS::Cognito::UserPoolClient
