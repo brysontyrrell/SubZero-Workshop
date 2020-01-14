@@ -36,46 +36,19 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
+      OpenApiVersion: '3.0.2'
       EndpointConfiguration: REGIONAL
       BinaryMediaTypes:
         - 'application/octet-stream'
         - 'image/*'
         - 'multipart/form-data'
-      DefinitionBody:
-        swagger: 2.0
-        info:
-          title: !Ref AWS::StackName
-        securityDefinitions:
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
           CognitoAuthorizer:
-            type: apiKey
-            name: Authorization
-            in: header
-            x-amazon-apigateway-authtype: cognito_user_pools
-            x-amazon-apigateway-authorizer:
-              type: cognito_user_pools
-              providerARNs:
-                - !Ref UserPoolArn
-        paths:
-          "/api/images":
-            post:
-              x-amazon-apigateway-integration:
-                httpMethod: post
-                type: aws_proxy
-                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Upload.Arn}/invocations
-                contentHandling: "CONVERT_TO_BINARY"
-              responses: {}
-              security:
-                - CognitoAuthorizer:
-                    - "workshop-api/allow"
-            get:
-              x-amazon-apigateway-integration:
-                httpMethod: post
-                type: aws_proxy
-                uri: !Sub arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${List.Arn}/invocations
-              responses: {}
-              security:
-                - CognitoAuthorizer:
-                    - "workshop-api/allow"
+            UserPoolArn: !Ref UserPoolArn
+            AuthorizationScopes:
+              - "workshop-api/allow"
 
   Upload:
     Type: AWS::Serverless::Function

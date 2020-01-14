@@ -24,10 +24,8 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
+      OpenApiVersion: '3.0.2'
       EndpointConfiguration: REGIONAL
-#      Domain:
-#        DomainName: !Sub "${AppName}.workshop.dev.jamfnimbus.cloud"
-#        CertificateARN: !Ref RegionalCertificateArn
 
   Upload:
     Type: AWS::Serverless::Function

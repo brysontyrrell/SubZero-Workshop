@@ -1,6 +1,10 @@
 version: 0.2
 
 phases:
+  pre_build:
+    commands:
+      - pip3 install -U aws-sam-cli
+      - pip3 install -U aws-sam-translator
   build:
     commands:
       - |
