@@ -217,6 +217,8 @@ Resources:
         Variables:
           STEP_FUNCTION_ARN: !Ref StateMachine
       Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref ImageStore
         - StepFunctionsExecutionPolicy:
             StateMachineName: !GetAtt StateMachine.Name
       Events:
